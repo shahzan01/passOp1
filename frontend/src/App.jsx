@@ -14,13 +14,28 @@ function App() {
       <>
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/dashboard" element={<HomePage />} />
+          <Route path="/dashboard"  element={isLogedIn()?<HomePage />:<Navigate to="/login"/>} />
           <Route path="/login" element={<Login />} />
         </Routes>
       </>
     </BrowserRouter>
   )
 }
+function isLogedIn(){
+  const token=localStorage.getItem("token");
+
+if(!token){
+  return false;
+}
+
+return true;
+}
+
+
+
+
+
+
 
 function HomePage() {
   return (

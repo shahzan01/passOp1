@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { connection } from "mongoose";
-const guestCredentials={email:"guest@gmail.com",password:"guest12345"}
+import {PUBLIC_API_URL} from "../../config";
+import {guestCredentials} from "../../config";
+
 const UserAuth = () => {
   const [isSignUp, setIsSignUp] = useState(false); // Toggle between login and sign-up
   const [formData, setFormData] = useState({
@@ -23,7 +25,7 @@ const UserAuth = () => {
 
     if (isSignUp) {
       try {
-        const response = await axios.post("http://localhost:5000/api/user/signup", formData);
+        const response = await axios.post(`${PUBLIC_API_URL }/api/user/signup`, formData);
         console.log(response.data)
         setMessage("Signed up successfully! Please login.");
 setFormData({email:"",password:""});
@@ -34,7 +36,7 @@ setIsSignUp(false)
       }
     } else {
       try {
-        const response = await axios.post("http://localhost:5000/api/user/login", formData);
+        const response = await axios.post(`${PUBLIC_API_URL }/api/user/login`, formData);
         const token = response.data.token;
 if(!token){
   console.error("Signup Error:", );
@@ -56,7 +58,7 @@ if(!token){
 
   const handleGuestLogin = async () => {
     try {
-      const response = await axios.post("http://localhost:5000/api/user/login", guestCredentials);
+      const response = await axios.post(`${PUBLIC_API_URL }/api/user/login` ,guestCredentials);
       const token = response.data.token;
 if(!token){
 console.error("Signup Error:", );

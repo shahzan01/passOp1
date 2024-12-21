@@ -3,6 +3,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
+import {PUBLIC_API_URL} from '../../config';
+
+
 
 const Manager = () => {
   const passwordRef = useRef();
@@ -16,7 +19,7 @@ const EditPasswordSave=useRef({edit:false,id:null});
   // Fetch passwords from MongoDB
   const fetchPasswords = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/passwords/all', {
+      const response = await axios.get(`${PUBLIC_API_URL }/api/passwords/all`, {
         headers: {
           token: ` ${localStorage.getItem("token")}`, // Add JWT token
           "Content-Type": "application/json", // Optional: Specify content type
@@ -45,11 +48,23 @@ if(JSON.stringify(old)==JSON.stringify(form)){
   EditPasswordSave.current.id=null;
 }
 else{
-old.edit=true;
-  deletePassword(old);
+try{
+  const response = await axios.put(`${PUBLIC_API_URL }/api/passwords/edit/${old.id}`,form, {
+    headers: {
+      token: ` ${localStorage.getItem("token")}`, // Add JWT token
+      "Content-Type": "application/json", // Optional: Specify content type
+    },
+  });
+  setForm({ url: '', username: '', password: '' }); 
+  fetchPasswords()
+}
+catch(error){
+  console.error('Error saving password:', error);
+}
+
 EditPasswordSave.current.edit=false;
 EditPasswordSave.current.id=null;
-savePassword()
+
 }
 
 
@@ -60,8 +75,8 @@ else{
   if (form.url && form.username && form.password) {
      
     try {
-      const temp={ url:form.url, username:form.username, password:form.password }
-      await axios.post('http://localhost:5000/api/passwords/add', temp, {
+    
+      await axios.post(`${PUBLIC_API_URL }/api/passwords/add`, form, {
         headers: {
           token: ` ${localStorage.getItem("token")}`, // Add JWT token
           "Content-Type": "application/json", // Optional: Specify content type
@@ -78,12 +93,13 @@ else{
 }
   };
 
+  
   // Delete password
   const deletePassword = async (item) => {
    
     if (item.edit || window.confirm('Are you sure you want to delete this password?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/passwords/delete/${item.id}`, {
+        await axios.delete(`${PUBLIC_API_URL }/api/passwords/delete/${item.id}`, {
           headers: {
             token: ` ${localStorage.getItem("token")}`, // Add JWT token
             "Content-Type": "application/json", // Optional: Specify content type
@@ -103,6 +119,7 @@ else{
     setPasswordArray(passwordArray.filter(item => item.id !== id)); // Remove from display
 EditPasswordSave.current.edit=true;
 EditPasswordSave.current.id=passwordToEdit;
+
   };
 
   // Handle input change
@@ -224,6 +241,7 @@ EditPasswordSave.current.id=passwordToEdit;
                             src="https://cdn.lordicon.com/ghhwiltn.json"
                             trigger="hover"
                             style={{ width: '25px', height: '25px' }}
+                            
                           ></lord-icon>
                         </span>
                         <span className="cursor-pointer mx-1 delete" onClick={() =>{ item.edit=false; deletePassword(item)}}>
